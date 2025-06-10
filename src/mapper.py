@@ -69,3 +69,51 @@ def extract_markdown_images(text):
 
 def extract_markdown_links(text):
     return re.findall(LINK_REGEX, text)
+
+
+def split_nodes_image(old_nodes):
+    new_nodes = []
+    print(f"\nold_nodes: {old_nodes}\n")
+    for n in old_nodes:
+        if n.text_type != TextType.TEXT:
+            new_nodes.append(n)
+        else:
+            images = extract_markdown_images(n.text)
+            print(f"\nimages: {images}, \ntext: {n.text}\n")
+            if len(images) == 0:
+                new_nodes.append(n)
+            else:
+                prev_end = 0
+                for alt, url in images:
+                    image_md = f"![{alt}]({url})"
+                    im_start = n.text.index(image_md)
+                    im_end = im_start + len(image_md)
+                    text = n.text[prev_end:im_start]
+                    if len(text) > 0:
+                        new_nodes.append(TextNode(text, TextType.TEXT))
+                    new_nodes.append(TextNode(alt, TextType.IMAGE, url))
+                    prev_end = im_end
+    return new_nodes
+
+
+def split_nodes_link(old_nodes):
+    new_nodes = []
+    for n in old_nodes:
+        if n.text_type != TextType.TEXT:
+            new_nodes.append(n)
+        else:
+            images = extract_markdown_links(n.text)
+            if len(images) == 0:
+                new_nodes.append(n)
+            else:
+                prev_end = 0
+                for alt, url in images:
+                    im_start = n.text.index(f"[{alt}]")
+                    url_wrapped = f"({url})"
+                    link_end = n.text.index(url_wrapped) + len(url_wrapped)
+                    text = n.text[prev_end:im_start]
+                    if len(text) > 0:
+                        new_nodes.append(TextNode(text, TextType.TEXT))
+                    new_nodes.append(TextNode(alt, TextType.LINK, url))
+                    prev_end = link_end
+    return new_nodes
