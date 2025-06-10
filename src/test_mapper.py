@@ -1,5 +1,10 @@
 import unittest
-from mapper import text_node_to_html_node, split_nodes_delimiter
+from mapper import (
+    text_node_to_html_node,
+    split_nodes_delimiter,
+    extract_markdown_images,
+    extract_markdown_links,
+)
 from textnode import TextNode, TextType
 
 
@@ -100,5 +105,59 @@ class TestSplitNodeDelimeter(unittest.TestCase):
             [
                 TextNode("This is text with a ", TextType.TEXT),
                 TextNode("code block", TextType.CODE),
+            ],
+        )
+
+    def test_extracts_markdown_images(self):
+        text = "This is a text with an ![image](https://example.com/image.png) in it."
+        images = extract_markdown_images(text)
+        self.assertListEqual(
+            images,
+            [
+                (
+                    "image",
+                    "https://example.com/image.png",
+                )
+            ],
+        )
+
+    def test_extracts_links(self):
+        text = "This is a text with a [link](https://example.com) in it."
+        links = extract_markdown_links(text)
+        self.assertListEqual(
+            links,
+            [
+                (
+                    "link",
+                    "https://example.com",
+                )
+            ],
+        )
+
+    def test_extracts_multiple_images(self):
+        text = (
+            "This is a text with an ![image1](https://example.com/image1.png) "
+            "and ![image2](https://example.com/image2.png) in it."
+        )
+        images = extract_markdown_images(text)
+        self.assertListEqual(
+            images,
+            [
+                ("image1", "https://example.com/image1.png"),
+                ("image2", "https://example.com/image2.png"),
+            ],
+        )
+
+    def test_extracts_multiple_links(self):
+        text = (
+            "This is a text with a [link1](https://example.com/link1) "
+            "and [link2](https://example.com/link2) in it."
+        )
+        links = extract_markdown_links(text)
+        self.assertListEqual(
+            links,
+            [
+                ("link1", "https://example.com/link1"),
+                ("link2", "https://example.com/link2"),
             ],
         )
