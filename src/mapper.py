@@ -1,5 +1,7 @@
 from textnode import TextType, TextNode
 from htmlnode import LeafNode
+from constants import IMAGES_REGEX, LINK_REGEX
+import re
 
 
 def text_node_to_html_node(text_node):
@@ -59,3 +61,11 @@ def split_nodes_delimiter(
                 new_nodes.append(TextNode(t, text_type))
 
     return new_nodes
+
+
+def extract_markdown_images(text):
+    return re.findall(IMAGES_REGEX, text)
+
+
+def extract_markdown_links(text):
+    return re.findall(LINK_REGEX, text)
