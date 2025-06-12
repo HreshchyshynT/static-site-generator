@@ -6,6 +6,7 @@ from mapper import (
     extract_markdown_links,
     split_nodes_link,
     split_nodes_image,
+    text_to_nodes,
 )
 from textnode import TextNode, TextType
 
@@ -83,11 +84,14 @@ class TestSplitNodeDelimeter(unittest.TestCase):
 
     def test_code_delimiter_not_found(self):
         node = TextNode("This is text without a code block", TextType.TEXT)
-        with self.assertRaises(ValueError) as cm:
-            split_nodes_delimiter([node], "`", TextType.CODE)
-        self.assertEqual(
-            str(cm.exception),
-            "invalid delimiter: `",
+        new_nodes = split_nodes_delimiter(
+            [node],
+            "_",
+            TextType.ITALIC,
+        )
+        self.assertListEqual(
+            [node],
+            [node],
         )
 
     def test_code_delimiter_not_paired(self):
@@ -107,6 +111,17 @@ class TestSplitNodeDelimeter(unittest.TestCase):
             [
                 TextNode("This is text with a ", TextType.TEXT),
                 TextNode("code block", TextType.CODE),
+            ],
+        )
+
+    def test_italic_delimeter(self):
+        node = TextNode("some text _italic_", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "_", TextType.ITALIC)
+        self.assertListEqual(
+            new_nodes,
+            [
+                TextNode("some text ", TextType.TEXT),
+                TextNode("italic", TextType.ITALIC),
             ],
         )
 
@@ -169,7 +184,7 @@ class TestSplitNodes(unittest.TestCase):
 
     def test_split_images(self):
         node = TextNode(
-            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)",
+            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png) and [link](https://link.com)",
             TextType.TEXT,
         )
         new_nodes = split_nodes_image([node])
@@ -193,6 +208,7 @@ class TestSplitNodes(unittest.TestCase):
                     TextType.IMAGE,
                     "https://i.imgur.com/3elNhQu.png",
                 ),
+                TextNode(" and [link](https://link.com)", TextType.TEXT),
             ],
             new_nodes,
         )
@@ -248,4 +264,29 @@ class TestSplitNodes(unittest.TestCase):
                 ),
             ],
             new_nodes,
+        )
+
+
+class TestTextToNodes(unittest.TestCase):
+    def test_text_to_nodes(self):
+        text = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+        nodes = text_to_nodes(text)
+        self.assertListEqual(
+            [
+                TextNode("This is ", TextType.TEXT),
+                TextNode("text", TextType.BOLD),
+                TextNode(" with an ", TextType.TEXT),
+                TextNode("italic", TextType.ITALIC),
+                TextNode(" word and a ", TextType.TEXT),
+                TextNode("code block", TextType.CODE),
+                TextNode(" and an ", TextType.TEXT),
+                TextNode(
+                    "obi wan image",
+                    TextType.IMAGE,
+                    "https://i.imgur.com/fJRm4Vk.jpeg",
+                ),
+                TextNode(" and a ", TextType.TEXT),
+                TextNode("link", TextType.LINK, "https://boot.dev"),
+            ],
+            nodes,
         )
