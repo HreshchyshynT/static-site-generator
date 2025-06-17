@@ -140,5 +140,4 @@ def markdown_to_blocks(markdown):
             ),
         )
     )
-    print(f"\nblocks: {blocks}")
     return blocks
