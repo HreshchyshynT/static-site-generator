@@ -128,3 +128,17 @@ def text_to_nodes(text):
     all_nodes = split_nodes_image(all_nodes)
     all_nodes = split_nodes_link(all_nodes)
     return all_nodes
+
+
+def markdown_to_blocks(markdown):
+    blocks = list(
+        filter(
+            lambda s: len(s) > 0,
+            map(
+                lambda s: s.strip(),
+                markdown.split("\n\n"),
+            ),
+        )
+    )
+    print(f"\nblocks: {blocks}")
+    return blocks
