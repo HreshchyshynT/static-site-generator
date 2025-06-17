@@ -7,6 +7,7 @@ from mapper import (
     split_nodes_link,
     split_nodes_image,
     text_to_nodes,
+    markdown_to_blocks,
 )
 from textnode import TextNode, TextType
 
@@ -289,4 +290,26 @@ class TestTextToNodes(unittest.TestCase):
                 TextNode("link", TextType.LINK, "https://boot.dev"),
             ],
             nodes,
+        )
+
+
+class TestMarkdownToBlocks(unittest.TestCase):
+    def test_markdown_to_blocks(self):
+        md = """
+This is **bolded** paragraph
+
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
+
+- This is a list
+- with items
+    """
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "This is **bolded** paragraph",
+                "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
+                "- This is a list\n- with items",
+            ],
         )
