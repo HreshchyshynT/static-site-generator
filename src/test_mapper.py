@@ -325,11 +325,11 @@ This is the same paragraph on a new line
 class TestMarkdownToHtml(unittest.TestCase):
     def test_paragraphs(self):
         md = """
-    This is **bolded** paragraph
-    text in a p
-    tag here
+This is **bolded** paragraph
+text in a p
+tag here
 
-    This is another paragraph with _italic_ text and `code` here
+This is another paragraph with _italic_ text and `code` here
 
     """
 
@@ -365,5 +365,4 @@ the **same** even with inline stuff
         self.assertEqual(
             html,
             "<div><blockquote><p>Dorothy followed her through many of the beautiful rooms in her castle.</p><p>The Witch bade her clean the pots and kettles and sweep the floor and keep the fire fed with wood.</p></blockquote></div>",
-            msg=f"html:\n{repr(html)}\ninput:\n{repr(QUOTE_BLOCK)}",
         )

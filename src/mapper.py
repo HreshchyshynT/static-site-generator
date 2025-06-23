@@ -160,7 +160,7 @@ def markdown_to_html_node(markdown):
         node = ParentNode(block_type_to_tag(bt, b), [])
         match bt:
             case BlockType.PARAGRAPH:
-                pass
+                node = get_paragraph_node(b)
             case BlockType.HEADING:
                 text = b.split(" ", maxsplit=1)[1]
                 node = LeafNode(node.tag, text)
@@ -176,7 +176,6 @@ def markdown_to_html_node(markdown):
             case _:
                 raise ValueError(f"invalid block type: {bt}")
         root.children.append(node)
-    print(f"ENDBLOCKS: {root}")
 
     return root
 
@@ -196,12 +195,19 @@ def get_quote_block_children(block):
     lines = [line for line in block.splitlines() if len(line.strip()) > 1]
     for line in lines:
         content = line.split(">", maxsplit=1)[1].strip()
-        text_nodes = text_to_nodes(content)
-        children = [text_node_to_html_node(n) for n in text_nodes]
-        node = ParentNode("p", children)
+        node = get_paragraph_node(content)
         all_nodes.append(node)
 
     return all_nodes
+
+
+def get_paragraph_node(content):
+    content = " ".join(
+        [line.strip() for line in content.splitlines() if line.strip()],
+    )
+    text_nodes = text_to_nodes(content)
+    children = [text_node_to_html_node(n) for n in text_nodes]
+    return ParentNode("p", children)
 
 
 def block_type_to_tag(bt, block):
