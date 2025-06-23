@@ -160,6 +160,7 @@ class TestInlineMarkdown(unittest.TestCase):
             TextType.TEXT,
         )
         new_nodes = split_nodes_link([node])
+        print(f"new nodes:\n{repr(new_nodes)}")
         self.assertListEqual(
             [
                 TextNode("This is text with a ", TextType.TEXT),

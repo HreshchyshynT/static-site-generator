@@ -96,4 +96,6 @@ def split_nodes_link(old_nodes):
                         new_nodes.append(TextNode(text, TextType.TEXT))
                     new_nodes.append(TextNode(alt, TextType.LINK, url))
                     prev_end = link_end
+                if prev_end < len(n.text) - 1:
+                    new_nodes.append(TextNode(n.text[prev_end:], TextType.TEXT))
     return new_nodes
