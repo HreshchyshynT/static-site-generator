@@ -26,7 +26,7 @@ def block_to_block_type(block):
 
     lines = block.split("\n")
 
-    if lines[0].startswith("```") and lines[-1].startswith("```"):
+    if lines[0].strip().startswith("```") and lines[-1].startswith("```"):
         return BlockType.CODE
 
     if block_start.startswith(">") and all(

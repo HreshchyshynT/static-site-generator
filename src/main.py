@@ -1,13 +1,11 @@
 from textnode import TextNode, TextType
+from mapper import markdown_to_html_node
+import test_data
 
 
 def main():
-    tn = TextNode(
-        "This is some anchor text",
-        TextType.LINK,
-        "https://www.boot.dev",
-    )
-    print(tn)
+    node = markdown_to_html_node(test_data.CODE_MARKDOWN)
+    print(node.to_html())
 
 
 if __name__ == "__main__":

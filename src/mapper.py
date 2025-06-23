@@ -1,6 +1,8 @@
 from textnode import TextType, TextNode
-from htmlnode import LeafNode
+from htmlnode import LeafNode, ParentNode
 from constants import IMAGES_REGEX, LINK_REGEX
+from block_type import block_to_block_type, BlockType
+
 import re
 
 
@@ -131,6 +133,12 @@ def text_to_nodes(text):
 
 
 def markdown_to_blocks(markdown):
+    # TODO: handle empty lines in code block
+    # ```
+    # some code
+    #
+    # ```
+    # should treat as single code block
     blocks = list(
         filter(
             lambda s: len(s) > 0,
@@ -141,3 +149,75 @@ def markdown_to_blocks(markdown):
         )
     )
     return blocks
+
+
+def markdown_to_html_node(markdown):
+    root = ParentNode("div", [])
+    blocks = markdown_to_blocks(markdown)
+
+    for b in blocks:
+        bt = block_to_block_type(b)
+        node = ParentNode(block_type_to_tag(bt, b), [])
+        match bt:
+            case BlockType.PARAGRAPH:
+                pass
+            case BlockType.HEADING:
+                text = b.split(" ", maxsplit=1)[1]
+                node = LeafNode(node.tag, text)
+            case BlockType.CODE:
+                node.children.append(get_code_block_node(b))
+
+            case BlockType.QUOTE:
+                node.children = get_quote_block_children(b)
+            case BlockType.UNORDERED_LIST:
+                return "ul"
+            case BlockType.ORDERED_LIST:
+                return "ol"
+            case _:
+                raise ValueError(f"invalid block type: {bt}")
+        root.children.append(node)
+    print(f"ENDBLOCKS: {root}")
+
+    return root
+
+
+def get_code_block_node(b):
+    code = b.split("```")
+    # code block should end with \n
+    node = LeafNode(
+        "code",
+        "\n".join([s for s in code[1].splitlines() if s.strip()]) + "\n",
+    )
+    return node
+
+
+def get_quote_block_children(block):
+    all_nodes = []
+    lines = [line for line in block.splitlines() if len(line.strip()) > 1]
+    for line in lines:
+        content = line.split(">", maxsplit=1)[1].strip()
+        text_nodes = text_to_nodes(content)
+        children = [text_node_to_html_node(n) for n in text_nodes]
+        node = ParentNode("p", children)
+        all_nodes.append(node)
+
+    return all_nodes
+
+
+def block_type_to_tag(bt, block):
+    match bt:
+        case BlockType.PARAGRAPH:
+            return "p"
+        case BlockType.HEADING:
+            n = len(block.split(" ")[0])
+            return f"h{n}"
+        case BlockType.CODE:
+            return "pre"  # TODO: multiline code use pre and code tags
+        case BlockType.QUOTE:
+            return "blockquote"
+        case BlockType.UNORDERED_LIST:
+            return "ul"
+        case BlockType.ORDERED_LIST:
+            return "ol"
+        case _:
+            raise ValueError(f"invalid block type: {bt}")
