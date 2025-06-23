@@ -117,14 +117,15 @@ def get_code_block_node(b):
 
 
 def get_quote_block_children(block):
-    all_nodes = []
-    lines = [line for line in block.splitlines() if len(line.strip()) > 1]
-    for line in lines:
-        content = line.split(">", maxsplit=1)[1].strip()
-        node = get_paragraph_node(content)
-        all_nodes.append(node)
+    text = " ".join(
+        [
+            line.split(" ", maxsplit=1)[1]
+            for line in block.splitlines()
+            if len(line.strip()) > 1
+        ]
+    )
 
-    return all_nodes
+    return text_to_html_nodes(text)
 
 
 def get_paragraph_node(content):
