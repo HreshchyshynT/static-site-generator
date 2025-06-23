@@ -1,23 +1,3 @@
-BASIC_MARKDOWN = """# Welcome to My Blog
-
-Hi there! This is a **simple post** to test _basic Markdown features_.
-
-## Topics Covered
-
-- Markdown syntax
-- HTML rendering
-- Static site generation
-
-### Here's a quote
-
-> "Static site generators are fast and secure!" – Dev Enthusiast
-
-And here’s an inline code: `npm run build`
-"""
-
-basic_html = """<div><h1>Welcome to My Blog</h1></div>
-"""
-
 CODE_MARKDOWN = """### JavaScript Example
 
 ```

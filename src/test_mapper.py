@@ -12,7 +12,6 @@ from mapper import (
 )
 from textnode import TextNode, TextType
 from test_data import (
-    BASIC_MARKDOWN,
     CODE_MARKDOWN,
     IMAGES_LINKS,
     QUOTE_BLOCK,
@@ -355,14 +354,32 @@ the **same** even with inline stuff
             "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff\n</code></pre></div>",
         )
 
-    def test_basic_markdown(self):
-        node = markdown_to_html_node(BASIC_MARKDOWN)
-        html = node.to_html()
-
     def test_quote_block(self):
         node = markdown_to_html_node(QUOTE_BLOCK)
         html = node.to_html()
         self.assertEqual(
             html,
             "<div><blockquote><p>Dorothy followed her through many of the beautiful rooms in her castle.</p><p>The Witch bade her clean the pots and kettles and sweep the floor and keep the fire fed with wood.</p></blockquote></div>",
+        )
+
+    def test_ordered_list(self):
+        md = """1. First item
+2. Second item
+3. Third item
+4. Fourth item"""
+        html = markdown_to_html_node(md).to_html()
+        self.assertEqual(
+            html,
+            "<div><ol><li>First item</li><li>Second item</li><li>Third item</li><li>Fourth item</li></ol></div>",
+        )
+
+    def test_unordered_list(self):
+        md = """- First item
+- Second item
+- 3rd"""
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><ul><li>First item</li><li>Second item</li><li>3rd</li></ul></div>",
         )

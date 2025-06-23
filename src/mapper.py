@@ -170,14 +170,22 @@ def markdown_to_html_node(markdown):
             case BlockType.QUOTE:
                 node.children = get_quote_block_children(b)
             case BlockType.UNORDERED_LIST:
-                return "ul"
+                node.children = get_list_items(b)
             case BlockType.ORDERED_LIST:
-                return "ol"
+                node.children = get_list_items(b)
             case _:
                 raise ValueError(f"invalid block type: {bt}")
         root.children.append(node)
 
     return root
+
+
+def get_list_items(block):
+    all_nodes = []
+    lines = [line.split(" ", maxsplit=1)[1] for line in block.splitlines()]
+    for line in lines:
+        all_nodes.append(ParentNode("li", text_to_html_nodes(line)))
+    return all_nodes
 
 
 def get_code_block_node(b):
@@ -205,9 +213,7 @@ def get_paragraph_node(content):
     content = " ".join(
         [line.strip() for line in content.splitlines() if line.strip()],
     )
-    text_nodes = text_to_nodes(content)
-    children = [text_node_to_html_node(n) for n in text_nodes]
-    return ParentNode("p", children)
+    return ParentNode("p", text_to_html_nodes(content))
 
 
 def block_type_to_tag(bt, block):
@@ -227,3 +233,9 @@ def block_type_to_tag(bt, block):
             return "ol"
         case _:
             raise ValueError(f"invalid block type: {bt}")
+
+
+def text_to_html_nodes(text):
+    text_nodes = text_to_nodes(text)
+    children = [text_node_to_html_node(n) for n in text_nodes]
+    return children
