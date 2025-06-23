@@ -1,19 +1,53 @@
-from textnode import TextType, TextNode
-from htmlnode import LeafNode, ParentNode
-from constants import IMAGES_REGEX, LINK_REGEX
-from block_type import block_to_block_type, BlockType
-
-import re
+from enum import Enum
+from htmlnode import ParentNode, LeafNode
+from inline_markdown import text_to_text_nodes
+from textnode import text_node_to_html_node
 
 
-def text_to_text_nodes(text):
-    node = TextNode(text, TextType.TEXT)
-    all_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
-    all_nodes = split_nodes_delimiter(all_nodes, "_", TextType.ITALIC)
-    all_nodes = split_nodes_delimiter(all_nodes, "`", TextType.CODE)
-    all_nodes = split_nodes_image(all_nodes)
-    all_nodes = split_nodes_link(all_nodes)
-    return all_nodes
+class BlockType(Enum):
+    PARAGRAPH = "paragraph"
+    HEADING = "heading"
+    CODE = "code"
+    QUOTE = "quote"
+    ULIST = "unordered_list"
+    OLIST = "ordered_list"
+
+
+def block_to_block_type(block):
+    block_start = block.split(" ")[0]
+    headings = {
+        "#",
+        "##",
+        "###",
+        "####",
+        "#####",
+        "######",
+    }
+
+    if block_start in headings:
+        return BlockType.HEADING
+
+    lines = block.split("\n")
+
+    if lines[0].strip().startswith("```") and lines[-1].startswith("```"):
+        return BlockType.CODE
+
+    if block_start.startswith(">") and all(
+        [line.startswith(">") for line in lines],
+    ):
+        return BlockType.QUOTE
+
+    if all(
+        [line.startswith("- ") for line in lines],
+    ):
+        return BlockType.ULIST
+
+    if all(
+        [line.startswith(f"{i + 1}. ") for i, line in enumerate(lines)],
+    ):
+        return BlockType.OLIST
+
+    return BlockType.PARAGRAPH
 
 
 def markdown_to_blocks(markdown):
@@ -53,9 +87,9 @@ def markdown_to_html_node(markdown):
 
             case BlockType.QUOTE:
                 node.children = get_quote_block_children(b)
-            case BlockType.UNORDERED_LIST:
+            case BlockType.ULIST:
                 node.children = get_list_items(b)
-            case BlockType.ORDERED_LIST:
+            case BlockType.OLIST:
                 node.children = get_list_items(b)
             case _:
                 raise ValueError(f"invalid block type: {bt}")
@@ -111,9 +145,9 @@ def block_type_to_tag(bt, block):
             return "pre"  # TODO: multiline code use pre and code tags
         case BlockType.QUOTE:
             return "blockquote"
-        case BlockType.UNORDERED_LIST:
+        case BlockType.ULIST:
             return "ul"
-        case BlockType.ORDERED_LIST:
+        case BlockType.OLIST:
             return "ol"
         case _:
             raise ValueError(f"invalid block type: {bt}")
