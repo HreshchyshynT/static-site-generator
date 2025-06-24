@@ -1,11 +1,8 @@
-from textnode import TextNode, TextType
-from mapper import markdown_to_html_node
-import test_data
+import utils
 
 
 def main():
-    node = markdown_to_html_node(test_data.CODE_MARKDOWN)
-    print(node.to_html())
+    utils.copy_files("./static", "./public")
 
 
 if __name__ == "__main__":
