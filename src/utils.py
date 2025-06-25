@@ -1,5 +1,6 @@
 from os import path as path
 import os
+import shutil
 
 
 def copy_files(src, dst):
@@ -15,7 +16,17 @@ def copy_files(src, dst):
     dst = path.abspath(dst)
     if not path.exists(src) or not path.isdir(src):
         raise Exception(f"{src} not exists or is not a directory")
+
     if not path.exists(dst):
         os.mkdir(dst)
     else:
         do_recursive(os.remove, [dst])
+
+    def copy(file):
+        dst_file = file.replace(src, dst)
+        dir = path.dirname(dst_file)
+        if not path.exists(dir):
+            os.mkdir(dir)
+        shutil.copy(file, dst_file)
+
+    do_recursive(copy, [src])
