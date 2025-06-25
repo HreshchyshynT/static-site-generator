@@ -97,5 +97,17 @@ def split_nodes_link(old_nodes):
                     new_nodes.append(TextNode(alt, TextType.LINK, url))
                     prev_end = link_end
                 if prev_end < len(n.text) - 1:
-                    new_nodes.append(TextNode(n.text[prev_end:], TextType.TEXT))
+                    new_nodes.append(
+                        TextNode(
+                            n.text[prev_end:],
+                            TextType.TEXT,
+                        )
+                    )
     return new_nodes
+
+
+def extract_title(markdown):
+    for line in markdown.splitlines():
+        if line.startswith("# "):
+            return line.split(" ", maxsplit=1)[1].strip()
+    raise Exception("No header found in markdown")

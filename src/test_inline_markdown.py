@@ -6,6 +6,7 @@ from inline_markdown import (
     text_to_text_nodes,
     extract_markdown_links,
     extract_markdown_images,
+    extract_title,
 )
 
 from textnode import TextNode, TextType
@@ -191,6 +192,14 @@ class TestInlineMarkdown(unittest.TestCase):
             ],
             nodes,
         )
+
+    def test_extract_title(self):
+        md = """hello this is paragrapgh
+nothing interesting here, BUT HERE
+
+# is title """
+        title = extract_title(md)
+        self.assertEqual(title, "is title")
 
 
 if __name__ == "__main__":
