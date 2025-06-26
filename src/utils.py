@@ -44,13 +44,13 @@ def generate_page(from_path, template_path, dest_path):
     with open(template_path) as f:
         template = f.read()
 
-    html = markdown_to_html_node(md)
+    html = markdown_to_html_node(md).to_html()
     title = extract_title(md)
     template = template.replace("{{ Title }}", title)
     template = template.replace("{{ Content }}", html)
 
-    if not path.exists(path.pardir(dest_path)):
-        os.mkdir(path.pardir(dest_path))
+    if not path.exists(path.dirname(dest_path)):
+        os.mkdir(path.dirname(dest_path))
 
     with open(dest_path, "w") as f:
         f.write(template)
