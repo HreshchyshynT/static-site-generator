@@ -1,6 +1,8 @@
 from os import path as path
 import os
 import shutil
+from markdown_block import markdown_to_html_node
+from inline_markdown import extract_title
 
 
 def copy_files(src, dst):
@@ -30,3 +32,25 @@ def copy_files(src, dst):
         shutil.copy(file, dst_file)
 
     do_recursive(copy, [src])
+
+
+def generate_page(from_path, template_path, dest_path):
+    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+    from_path = path.abspath(from_path)
+    template_path = path.abspath(template_path)
+    dest_path = path.abspath(dest_path)
+    with open(from_path) as f:
+        md = f.read()
+    with open(template_path) as f:
+        template = f.read()
+
+    html = markdown_to_html_node(md)
+    title = extract_title(md)
+    template = template.replace("{{ Title }}", title)
+    template = template.replace("{{ Content }}", html)
+
+    if not path.exists(path.pardir(dest_path)):
+        os.mkdir(path.pardir(dest_path))
+
+    with open(dest_path, "w") as f:
+        f.write(template)
