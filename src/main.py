@@ -1,9 +1,19 @@
 import utils
+import sys
 
 
 def main():
-    utils.copy_files("./static/", "./public/")
-    utils.generate_page_recursive("./content/", "./template.html", "./public/")
+    if len(sys.argv) > 1:
+        basepath = sys.argv[1]
+    else:
+        basepath = "/"
+    utils.copy_files("./static/", "./docs/")
+    utils.generate_page_recursive(
+        basepath,
+        "./content/",
+        "./template.html",
+        "./docs/",
+    )
 
 
 if __name__ == "__main__":
